@@ -1,4 +1,4 @@
-package nomain
+package junk
 
 import (
 	"encoding/json"
