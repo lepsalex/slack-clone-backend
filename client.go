@@ -7,49 +7,51 @@
 
 package main
 
-import (
-	"fmt"
-	"math/rand"
-	"time"
-)
+import "github.com/gorilla/websocket"
+
+// FindHandler function signature definition
+type FindHandler func(string) (Handler, bool)
 
 // Client - Defines channel struct
 type Client struct {
-	// socket *websocket.Conn
-	send chan Message
+	send        chan Message
+	socket      *websocket.Conn
+	findHandler FindHandler
 }
 
-func (client *Client) write() {
+// Message - Defines message structure
+type Message struct {
+	Name string      `json:"name"`
+	Data interface{} `json:"data"`
+}
+
+func (client *Client) Read() {
+	var message Message
+	for {
+		if err := client.socket.ReadJSON(&message); err != nil {
+			break
+		}
+		if handler, found := client.findHandler(message.Name); found == true {
+			handler(client, message.Data)
+		}
+	}
+	client.socket.Close()
+}
+
+func (client *Client) Write() {
 	for msg := range client.send {
-		// TODO socket.sendJSON
-		fmt.Printf("%#v\n", msg)
+		if err := client.socket.WriteJSON(msg); err != nil {
+			break
+		}
 	}
-}
-
-func (client *Client) subscribeChannels() {
-	// TODO change feed Query rethinkDB
-	for {
-		time.Sleep(r())
-		client.send <- Message{"channel add", ""}
-	}
-}
-
-func (client *Client) subscribeMessages() {
-	// TODO change feed Query rethinkDB
-	for {
-		time.Sleep(r())
-		client.send <- Message{"message add", ""}
-	}
-}
-
-// TEMP
-func r() time.Duration {
-	return time.Millisecond * time.Duration(rand.Intn(1000))
+	client.socket.Close()
 }
 
 // NewClient - Function that creates object (similar to constructor but no)
-func NewClient() *Client {
+func NewClient(socket *websocket.Conn, findHanlder FindHandler) *Client {
 	return &Client{
-		send: make(chan Message),
+		send:        make(chan Message),
+		socket:      socket,
+		findHandler: findHanlder,
 	}
 }

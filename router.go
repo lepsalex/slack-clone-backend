@@ -36,11 +36,18 @@ func NewRouter() *Router {
 }
 
 // Handle - Assigns handler to router msg mapping
-func (r *Router) Handle(msgName string, handler Handler) {
-	r.rules[msgName] = handler
+func (router *Router) Handle(msgName string, handler Handler) {
+	router.rules[msgName] = handler
 }
 
-func (e *Router) ServeHTTP(w http.ResponseWrite, r *http.Request) {
+// FindHandler - function to assist in look up of router handlers
+func (router *Router) FindHandler(msgName string) (Handler, bool) {
+	handler, found := router.rules[msgName]
+	return handler, found
+}
+
+// ServeHTTP - define our implementation of the ServerHTTP func
+func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Upgrade all traffic from HTTP to Websocket
 	socket, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -51,7 +58,7 @@ func (e *Router) ServeHTTP(w http.ResponseWrite, r *http.Request) {
 	}
 
 	// Init new client
-	client := NewClient(socket)
+	client := NewClient(socket, router.FindHandler)
 	go client.Write()
 	client.Read()
 }
