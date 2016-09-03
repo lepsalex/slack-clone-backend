@@ -1,5 +1,5 @@
 /*
- * Main.go
+ * MAIN.GO
  * Websocket based server implementation
  * for the slack-clone app ...
  *
@@ -21,8 +21,10 @@ type Channel struct {
 func main() {
 	router := NewRouter()
 
-	// router.Handle("channel add", addChannel)
+	// Register route handlers
+	router.Handle("channel add", addChannel)
 
+	// Activate router
 	http.Handle("/", router)
 	http.ListenAndServe(":4000", nil)
 }
