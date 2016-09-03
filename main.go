@@ -10,26 +10,18 @@
 
 package main
 
-import (
-	"net/http"
+import "net/http"
 
-	"github.com/gorilla/websocket"
-)
-
+// Message - Defines message structure
 type Message struct {
 	Name string      `json:"name"`
 	Data interface{} `json:"data"`
 }
 
+// Channel - Defines channel structure
 type Channel struct {
-	Id   string `json:"id"`
+	ID   string `json:"ID"`
 	Name string `json:"name"`
-}
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin:     func(r *http.Request) bool { return true },
 }
 
 func main() {
