@@ -20,6 +20,7 @@ const (
 	MessageStop
 )
 
+// Adds a channel to the app
 func addChannel(client *Client, data interface{}) {
 	var channel Channel
 	err := mapstructure.Decode(data, &channel)
@@ -37,6 +38,7 @@ func addChannel(client *Client, data interface{}) {
 	}()
 }
 
+// Subscribes client (user) to changes on channel
 func subscribeChannel(client *Client, data interface{}) {
 	stop := client.NewStopChannel(ChannelStop)
 	result := make(chan r.ChangeResponse)
@@ -68,3 +70,18 @@ func subscribeChannel(client *Client, data interface{}) {
 		}
 	}()
 }
+
+// Unsubscribes client (user) to changes on channel
+func unsubscribeChannel(client *Client, data interface{}) {
+	client.StopForKey(ChannelStop)
+}
+
+/*
+ * TODO
+ * user edit
+ * user subscribe
+ * user unsubscribe
+ * message add
+ * message subscribe
+ * message unsubscribe
+ */

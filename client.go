@@ -26,9 +26,21 @@ type Client struct {
 
 // NewStopChannel - Stop channel creator
 func (client *Client) NewStopChannel(stopKey int) chan bool {
+	// Ensure we stop and existing stop channel on this key
+	client.StopForKey(stopKey)
+
+	// Start stop channel on key
 	stop := make(chan bool)
 	client.stopChannels[stopKey] = stop
 	return stop
+}
+
+// StopForKey - stops channel goroutine on key
+func (client *Client) StopForKey(key int) {
+	if ch, found := client.stopChannels[key]; found {
+		ch <- true
+		delete(client.stopChannels, key)
+	}
 }
 
 // Message - Defines message structure

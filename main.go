@@ -47,6 +47,7 @@ func main() {
 	// Register route handlers
 	router.Handle("channel add", addChannel)
 	router.Handle("channel subscribe", subscribeChannel)
+	router.Handle("channel unsubscribe", unsubscribeChannel)
 
 	// Activate router
 	http.Handle("/", router)
