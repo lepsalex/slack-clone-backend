@@ -12,6 +12,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/websocket"
+	r "gopkg.in/dancannon/gorethink.v2"
 )
 
 // Handler - Function signature definition
@@ -25,13 +26,15 @@ var upgrader = websocket.Upgrader{
 
 // Router - Router struct
 type Router struct {
-	rules map[string]Handler
+	rules   map[string]Handler
+	session *r.Session
 }
 
 // NewRouter - Init function for Router Object
-func NewRouter() *Router {
+func NewRouter(session *r.Session) *Router {
 	return &Router{
-		rules: make(map[string]Handler),
+		rules:   make(map[string]Handler),
+		session: session,
 	}
 }
 
@@ -58,7 +61,7 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Init new client
-	client := NewClient(socket, router.FindHandler)
+	client := NewClient(socket, router.FindHandler, router.session)
 	go client.Write()
 	client.Read()
 }

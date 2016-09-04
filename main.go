@@ -10,16 +10,39 @@
 
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"log"
+
+	r "gopkg.in/dancannon/gorethink.v2"
+)
 
 // Channel - Defines channel structure
 type Channel struct {
-	ID   string `json:"ID"`
-	Name string `json:"name"`
+	ID   string `json:"ID" gorethink:"id,omitempty"`
+	Name string `json:"name" gorethink:"name"`
+}
+
+// User - defines user type
+type User struct {
+	ID   string `gorethink:"id,omitempty"`
+	Name string `gorethink:"name"`
 }
 
 func main() {
-	router := NewRouter()
+	// Connect to rethinkDB
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Database: "slack_clone",
+	})
+
+	if err != nil {
+		log.Panic(err.Error())
+	}
+
+	// Create new router object
+	router := NewRouter(session)
 
 	// Register route handlers
 	router.Handle("channel add", addChannel)

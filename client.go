@@ -7,7 +7,10 @@
 
 package main
 
-import "github.com/gorilla/websocket"
+import (
+	"github.com/gorilla/websocket"
+	r "gopkg.in/dancannon/gorethink.v2"
+)
 
 // FindHandler function signature definition
 type FindHandler func(string) (Handler, bool)
@@ -17,6 +20,7 @@ type Client struct {
 	send        chan Message
 	socket      *websocket.Conn
 	findHandler FindHandler
+	session     *r.Session
 }
 
 // Message - Defines message structure
@@ -48,10 +52,13 @@ func (client *Client) Write() {
 }
 
 // NewClient - Function that creates object (similar to constructor but no)
-func NewClient(socket *websocket.Conn, findHanlder FindHandler) *Client {
+func NewClient(socket *websocket.Conn,
+	findHanlder FindHandler,
+	session *r.Session) *Client {
 	return &Client{
 		send:        make(chan Message),
 		socket:      socket,
 		findHandler: findHanlder,
+		session:     session,
 	}
 }
