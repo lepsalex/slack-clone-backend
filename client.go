@@ -17,10 +17,18 @@ type FindHandler func(string) (Handler, bool)
 
 // Client - Defines channel struct
 type Client struct {
-	send        chan Message
-	socket      *websocket.Conn
-	findHandler FindHandler
-	session     *r.Session
+	send         chan Message
+	socket       *websocket.Conn
+	findHandler  FindHandler
+	session      *r.Session
+	stopChannels map[int]chan bool
+}
+
+// NewStopChannel - Stop channel creator
+func (client *Client) NewStopChannel(stopKey int) chan bool {
+	stop := make(chan bool)
+	client.stopChannels[stopKey] = stop
+	return stop
 }
 
 // Message - Defines message structure
@@ -56,9 +64,10 @@ func NewClient(socket *websocket.Conn,
 	findHanlder FindHandler,
 	session *r.Session) *Client {
 	return &Client{
-		send:        make(chan Message),
-		socket:      socket,
-		findHandler: findHanlder,
-		session:     session,
+		send:         make(chan Message),
+		socket:       socket,
+		findHandler:  findHanlder,
+		session:      session,
+		stopChannels: make(map[int]chan bool),
 	}
 }
