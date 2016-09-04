@@ -18,18 +18,6 @@ import (
 	r "gopkg.in/dancannon/gorethink.v2"
 )
 
-// Channel - Defines channel structure
-type Channel struct {
-	ID   string `json:"ID" gorethink:"id,omitempty"`
-	Name string `json:"name" gorethink:"name"`
-}
-
-// User - defines user type
-type User struct {
-	ID   string `gorethink:"id,omitempty"`
-	Name string `gorethink:"name"`
-}
-
 func main() {
 	// Connect to rethinkDB
 	session, err := r.Connect(r.ConnectOpts{
@@ -48,6 +36,14 @@ func main() {
 	router.Handle("channel add", addChannel)
 	router.Handle("channel subscribe", subscribeChannel)
 	router.Handle("channel unsubscribe", unsubscribeChannel)
+
+	router.Handle("user edit", editUser)
+	router.Handle("user subscribe", subscribeUser)
+	router.Handle("user unsubscribe", unsubscribeUser)
+
+	router.Handle("message add", addChannelMessage)
+	router.Handle("message subscribe", subscribeChannelMessage)
+	router.Handle("message unsubscribe", unsubscribeChannelMessage)
 
 	// Activate router
 	http.Handle("/", router)

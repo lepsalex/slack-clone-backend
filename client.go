@@ -8,6 +8,8 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gorilla/websocket"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
@@ -22,6 +24,8 @@ type Client struct {
 	findHandler  FindHandler
 	session      *r.Session
 	stopChannels map[int]chan bool
+	id           string
+	userName     string
 }
 
 // NewStopChannel - Stop channel creator
@@ -82,14 +86,28 @@ func (client *Client) Close() {
 }
 
 // NewClient - Function that creates object (similar to constructor but no)
-func NewClient(socket *websocket.Conn,
-	findHanlder FindHandler,
-	session *r.Session) *Client {
+func NewClient(socket *websocket.Conn, findHanlder FindHandler, session *r.Session) *Client {
+	// Default client user values
+	var user User
+	user.Name = "anonymous"
+	// Insert default into rethinkDB
+	res, err := r.Table("user").Insert(user).RunWrite(session)
+	if err != nil {
+		log.Println(err.Error())
+	}
+	// Get generated user key
+	var id string
+	if len(res.GeneratedKeys) > 0 {
+		id = res.GeneratedKeys[0]
+	}
+	// Return client for user
 	return &Client{
 		send:         make(chan Message),
 		socket:       socket,
 		findHandler:  findHanlder,
 		session:      session,
 		stopChannels: make(map[int]chan bool),
+		id:           id,
+		userName:     user.Name,
 	}
 }
