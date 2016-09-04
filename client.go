@@ -37,6 +37,7 @@ type Message struct {
 	Data interface{} `json:"data"`
 }
 
+// Read method (client)
 func (client *Client) Read() {
 	var message Message
 	for {
@@ -50,6 +51,7 @@ func (client *Client) Read() {
 	client.socket.Close()
 }
 
+// Write method (client)
 func (client *Client) Write() {
 	for msg := range client.send {
 		if err := client.socket.WriteJSON(msg); err != nil {
@@ -57,6 +59,14 @@ func (client *Client) Write() {
 		}
 	}
 	client.socket.Close()
+}
+
+// Close method (client)
+func (client *Client) Close() {
+	for _, ch := range client.stopChannels {
+		ch <- true
+	}
+	close(client.send)
 }
 
 // NewClient - Function that creates object (similar to constructor but no)

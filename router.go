@@ -62,6 +62,11 @@ func (router *Router) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Init new client
 	client := NewClient(socket, router.FindHandler, router.session)
+
+	// Defer clean up method
+	defer client.Close()
+
+	// Run read/write
 	go client.Write()
 	client.Read()
 }

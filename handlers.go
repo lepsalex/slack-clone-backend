@@ -7,6 +7,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/mitchellh/mapstructure"
 	r "gopkg.in/dancannon/gorethink.v2"
 )
@@ -60,6 +62,7 @@ func subscribeChannel(client *Client, data interface{}) {
 			case change := <-result:
 				if change.NewValue != nil && change.OldValue == nil {
 					client.send <- Message{"channel add", change.NewValue}
+					fmt.Println("Sent Channel Add")
 				}
 			}
 		}
